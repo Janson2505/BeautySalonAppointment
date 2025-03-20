@@ -1,0 +1,77 @@
+﻿@model BeautySalonAppointments.Models.Appointment
+
+@{
+    ViewData["Title"] = "Edytuj wizytę";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Edycja szczegółów wizyty</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Date" class="form-label">Data wizyty</label>
+                <input asp-for="Date" class="form-control" type="datetime-local" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Service" class="form-label">Usługa</label>
+                <input asp-for="Service" class="form-control" />
+                <span asp-validation-for="Service" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Duration" class="form-label">Czas trwania</label>
+                <select asp-for="Duration" class="form-control">
+                    <option value="15">15 minut</option>
+                    <option value="30">30 minut</option>
+                    <option value="45">45 minut</option>
+                    <option value="60">1 godzina</option>
+                    <option value="90">1.5 godziny</option>
+                    <option value="120">2 godziny</option>
+                    <option value="180">3 godziny</option>
+                    <option value="240">4 godziny</option>
+                </select>
+                <span asp-validation-for="Duration" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ClientId" class="control-label">Klient</label>
+                <select asp-for="ClientId" class="form-control" asp-items="ViewBag.Clients">
+                    <option value="">-- Wybierz klienta --</option>
+                </select>
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+
+           
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i> Zapisz
+                </button>
+                <a asp-action="Index" class="btn btn-secondary ms-2">
+                    <i class="bi bi-x-lg"></i> Anuluj
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Powrót do listy
+    </a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

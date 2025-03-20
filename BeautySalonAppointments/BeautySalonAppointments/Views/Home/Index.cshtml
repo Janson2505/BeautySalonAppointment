@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Salon Piękności - Strona główna";
+}
+
+<div class="salon-home">
+    <!-- Sekcja hero z obrazem tła -->
+    <div class="salon-hero">
+        <div class="hero-content">
+            <h1>Witaj w naszym Salonie Piękności</h1>
+            <p>Profesjonalne usługi kosmetyczne dopasowane do Twoich potrzeb</p>
+            <a asp-controller="Appointments" asp-action="Create" class="btn btn-primary btn-lg">Umów wizytę</a>
+        </div>
+    </div>
+
+
+    
+
+    <!-- Sekcja z usługami -->
+    <section class="salon-services">
+        <h2 class="section-title">Nasze usługi</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="service-card">
+                    <div class="service-icon">💅</div>
+                    <h3>Manicure</h3>
+                    <p>Profesjonalny manicure klasyczny, hybrydowy i żelowy.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card">
+                    <div class="service-icon">💇‍♀️</div>
+                    <h3>Fryzjerstwo</h3>
+                    <p>Strzyżenie, koloryzacja, stylizacja i zabiegi regeneracyjne.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card">
+                    <div class="service-icon">👩‍🎤</div>
+                    <h3>Makijaż</h3>
+                    <p>Makijaż dzienny, wieczorowy i okolicznościowy.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sekcja z ostatnimi wizytami i zarządzaniem -->
+    <section class="salon-management mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="dashboard-card">
+                    <h3>Nadchodzące wizyty</h3>
+                    <p>Szybki dostęp do zarządzania wizytami:</p>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Appointments" asp-action="Index" class="btn btn-outline-primary">Lista wszystkich wizyt</a>
+                        <a asp-controller="Appointments" asp-action="Create" class="btn btn-outline-success">Dodaj nową wizytę</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="dashboard-card">
+                    <h3>Nasi klienci</h3>
+                    <p>Zarządzaj bazą klientów salonu:</p>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Clients" asp-action="Index" class="btn btn-outline-primary">Lista wszystkich klientów</a>
+                        <a asp-controller="Clients" asp-action="Create" class="btn btn-outline-success">Dodaj nowego klienta</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sekcja z informacjami kontaktowymi -->
+    <section class="salon-contact mt-5">
+        <h2 class="section-title">Kontakt</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="contact-info">
+                    <h4>Adres salonu</h4>
+                    <p>ul. Prosta 90<br>42-231 Nowy Kocin</p>
+                    <h4>Godziny otwarcia</h4>
+                    <p>Poniedziałek - Piątek: 9:00 - 20:00<br>Sobota: 9:00 - 16:00</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="contact-info">
+                    <h4>Skontaktuj się z nami</h4>
+                    <p>Telefon: (48) 123-123-123<br>Email: kontakt@beauty.pl</p>
+                    <h4>Social Media</h4>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

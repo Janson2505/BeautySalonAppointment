@@ -1,0 +1,185 @@
+﻿@model IEnumerable<BeautySalonAppointments.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Wizyty";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/appointments.css" />
+}
+
+<h1>Wizyty</h1>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Wyszukaj i filtruj wizyty</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Index" method="get" class="mb-0">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label">Szukaj w usługach:</label>
+                                <input type="text" name="searchString" class="form-control" value="@ViewBag.CurrentSearchString" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label">Klient:</label>
+                                <select name="clientFilter" class="form-control">
+                                    <option value="0">Wszyscy klienci</option>
+                                    @if (ViewBag.Clients != null)
+                                    {
+                                        foreach (var item in ViewBag.Clients)
+                                        {
+                                            if (ViewBag.CurrentClientFilter == item.Value)
+                                            {
+                                                <option value="@item.Value" selected>@item.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label">Usługa:</label>
+                                <select name="serviceFilter" class="form-control">
+                                    <option value="">Wszystkie usługi</option>
+                                    @if (ViewBag.Services != null)
+                                    {
+                                        foreach (var item in ViewBag.Services)
+                                        {
+                                            if (ViewBag.CurrentServiceFilter == item.Text)
+                                            {
+                                                <option value="@item.Text" selected>@item.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.Text">@item.Text</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label">Data od:</label>
+                                <input type="date" name="dateFrom" class="form-control" value="@ViewBag.CurrentDateFrom" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label">Data do:</label>
+                                <input type="date" name="dateTo" class="form-control" value="@ViewBag.CurrentDateTo" />
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <div class="form-group w-100">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-search"></i> Szukaj
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus"></i> Dodaj nową wizytę
+    </a>
+    <a asp-action="Calendar" class="btn btn-info ms-2">
+        <i class="bi bi-calendar3"></i> Widok kalendarza
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover appointments-table">
+        <thead>
+            <tr>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewBag.DateSortParam">Data</a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewBag.NameSortParam">Klient</a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewBag.ServiceSortParam">Usługa</a>
+                </th>
+                <th>
+                    Czas trwania
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var statusClass = DateTime.Now > item.Date ? "status-completed" : "status-upcoming";
+                var statusText = DateTime.Now > item.Date ? "Zakończona" : "Oczekująca";
+
+                <tr>
+                    <td data-label="Data">
+                        @Html.DisplayFor(modelItem => item.Date)
+                    </td>
+                    <td data-label="Klient">
+                        @(item.Client?.Name ?? "Nieznany klient")
+                    </td>
+                    <td data-label="Usługa">
+                        @Html.DisplayFor(modelItem => item.Service)
+                    </td>
+                    <td data-label="Czas trwania">
+                        @{
+                            var duration = item.Duration;
+                            if (duration >= 60)
+                            {
+                                var hours = Math.Floor(duration / 60.0);
+                                var minutes = duration % 60;
+                                @(hours + (hours == 1 ? " godzina" : " godziny"))
+                                if (minutes > 0)
+                                {
+                                    @(" " + minutes + " minut")
+                                }
+                            }
+                            else
+                            {
+                                @(duration + " minut")
+                            }
+                        }
+                    </td>
+                    <td data-label="Status">
+                        <span class="appointment-status @statusClass">
+                            @statusText
+                        </span>
+                    </td>
+                    <td data-label="Akcje">
+                        <div class="action-buttons">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i> Edytuj
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i> Usuń
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

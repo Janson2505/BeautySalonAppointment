@@ -1,0 +1,220 @@
+﻿@{
+    ViewData["Title"] = "Kalendarz wizyt";
+}
+
+<h1>Kalendarz wizyt</h1>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Powrót do listy
+        </a>
+        <a asp-action="Create" class="btn btn-success ms-2">
+            <i class="bi bi-plus"></i> Dodaj nową wizytę
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">Kalendarz wizyt</h5>
+            </div>
+            <div class="col-auto">
+                <div class="legend d-flex align-items-center">
+                    <span class="legend-item me-3">
+                        <span class="color-dot" style="background-color: #ff7eb9;"></span> Makijaż
+                    </span>
+                    <span class="legend-item me-3">
+                        <span class="color-dot" style="background-color: #7afcff;"></span> Fryzjer
+                    </span>
+                    <span class="legend-item me-3">
+                        <span class="color-dot" style="background-color: #6495ED;"></span> Manicure
+                    </span>
+                    <span class="legend-item me-3">
+                        <span class="color-dot" style="background-color: #FF7F50;"></span> Pedicure
+                    </span>
+                    <span class="legend-item">
+                        <span class="color-dot" style="background-color: #7effcc;"></span> Masaż
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<!-- Modal dla szczegółów wizyty -->
+<div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentModalLabel">Szczegóły wizyty</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetails">
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                <a href="#" id="editAppointmentLink" class="btn btn-primary">Edytuj</a>
+                <a href="#" id="deleteAppointmentLink" class="btn btn-danger">Usuń</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        #calendar {
+            height: 650px;
+        }
+
+        .fc-event {
+            cursor: pointer;
+        }
+
+        .color-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .appointment-info {
+            margin-bottom: 15px;
+        }
+
+            .appointment-info .label {
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var appointmentModal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                locale: 'pl',
+                slotMinTime: '08:00:00',
+                slotMaxTime: '20:00:00',
+                height: 'auto',
+                navLinks: true,
+                selectable: false,
+                selectMirror: true,
+                nowIndicator: true,
+                allDaySlot: false,
+                businessHours: {
+                    daysOfWeek: [1, 2, 3, 4, 5, 6],
+                    startTime: '08:00',
+                    endTime: '20:00',
+                },
+                scrollTime: new Date().getHours() + ":00:00",
+                slotDuration: '00:30:00',
+                events: function(info, successCallback, failureCallback) {
+                    fetch('/Appointments/GetCalendarData?start=' + encodeURIComponent(info.startStr) + '&end=' + encodeURIComponent(info.endStr))
+                        .then(response => response.json())
+                        .then(data => {
+                            successCallback(data);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching calendar data:', error);
+                            failureCallback(error);
+                        });
+                },
+                eventClick: function(info) {
+                     var event = info.event;
+                     var appointmentId = event.id;
+                     var start = new Date(event.start);
+                     var end = event.end ? new Date(event.end) : new Date(start.getTime() + 60*60*1000);
+                     var clientName = event.extendedProps.clientName || 'Nieznany klient';
+                     var service = event.extendedProps.service || 'Brak informacji o usłudze';
+                     var duration = event.extendedProps.duration || 60; 
+
+                     var startDate = start.toLocaleDateString('pl-PL', {
+                         weekday: 'long',
+                         year: 'numeric',
+                         month: 'long',
+                         day: 'numeric'
+                     });
+
+                     var startTime = start.toLocaleTimeString('pl-PL', {
+                         hour: '2-digit',
+                         minute: '2-digit'
+                     });
+
+                     var endTime = end.toLocaleTimeString('pl-PL', {
+                         hour: '2-digit',
+                         minute: '2-digit'
+                     });
+                     var durationText = '';
+                     if (duration >= 60) {
+                         var hours = Math.floor(duration / 60);
+                         var minutes = duration % 60;
+                         durationText = hours + (hours === 1 ? ' godzina' : ' godziny');
+                         if (minutes > 0) {
+                             durationText += ' ' + minutes + ' minut';
+                         }
+                     } else {
+                         durationText = duration + ' minut';
+                     }
+
+                     // HTML ze szczegółami wizyty
+                     var detailsHtml = `
+                         <div class="appointment-info">
+                             <div class="label">Data:</div>
+                             <div>${startDate}</div>
+                         </div>
+                         <div class="appointment-info">
+                             <div class="label">Czas:</div>
+                             <div>${startTime} - ${endTime}</div>
+                         </div>
+                         <div class="appointment-info">
+                             <div class="label">Czas trwania:</div>
+                             <div>${durationText}</div>
+                         </div>
+                         <div class="appointment-info">
+                             <div class="label">Usługa:</div>
+                             <div>${service}</div>
+                         </div>
+                         <div class="appointment-info">
+                             <div class="label">Klient:</div>
+                             <div>${clientName}</div>
+                         </div>
+                     `;
+
+                     document.getElementById('appointmentDetails').innerHTML = detailsHtml;
+                     document.getElementById('editAppointmentLink').href = '/Appointments/Edit/' + appointmentId;
+                     document.getElementById('deleteAppointmentLink').href = '/Appointments/Delete/' + appointmentId;
+
+                     appointmentModal.show();
+                }
+                
+            });
+
+            calendar.render();
+        });
+    </script>
+}
