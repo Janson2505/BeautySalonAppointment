@@ -256,7 +256,6 @@ namespace BeautySalonAppointments.Controllers
 
   
         [HttpGet]
-        [HttpGet]
         public async Task<IActionResult> GetCalendarData(DateTime start, DateTime end)
         {
             var appointments = await _context.Appointments
